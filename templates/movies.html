@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ user.name }}'s Movies{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('home') }}" class="back-link">← Back to Users</a>
+
+<section class="card">
+    <h2>{{ user.name }}'s Favorite Movies</h2>
+
+    <!-- Add new movie -->
+    <form action="{{ url_for('add_movie', user_id=user.id) }}" method="POST" class="add-form">
+        <input type="text" name="title" placeholder="Add movie by title (OMDb)" required>
+        <button type="submit">Add Movie</button>
+    </form>
+
+    {% if movies %}
+        <ul class="movie-list">
+            {% for movie in movies %}
+            <li class="movie-item">
+                {% if movie.poster_url %}
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }} poster">
+                {% endif %}
+                <div class="movie-info">
+                    <h3>{{ movie.title }} {% if movie.year %}({{ movie.year }}){% endif %}</h3>
+                    {% if movie.director %}
+                        <p><strong>Director:</strong> {{ movie.director }}</p>
+                    {% endif %}
+
+                    <!-- Rating and notes update -->
+                    <form action="{{ url_for('update_movie', user_id=user.id, movie_id=movie.id) }}" method="POST" class="update-form">
+                        <label>
+                            Rating (1–10):
+                            <input type="number" name="rating" min="1" max="10" value="{{ movie.rating or '' }}">
+                        </label>
+                        <label>
+                            Notes:
+                            <input type="text" name="notes" value="{{ movie.notes or '' }}" placeholder="Your notes">
+                        </label>
+                        <button type="submit">Update</button>
+                    </form>
+
+                    <!-- Delete movie -->
+                    <form action="{{ url_for('delete_movie', user_id=user.id, movie_id=movie.id) }}" method="POST" onsubmit="return confirm('Delete this movie?');">
+                        <button type="submit" class="danger">Delete</button>
+                    </form>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No movies yet. Add one above!</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>Registered Users</h2>
+
+    {% if users %}
+        <ul class="user-list">
+            {% for user in users %}
+                <li>
+                    <a href="{{ url_for('user_movies', user_id=user.id) }}">{{ user.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No users yet. Add one below!</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Add a New User</h2>
+    <form action="{{ url_for('create_user') }}" method="POST">
+        <input type="text" name="name" placeholder="Enter user name" required>
+        <button type="submit">Add User</button>
+    </form>
+</section>
+{% endblock %}
