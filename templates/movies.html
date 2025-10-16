@@ -5,44 +5,49 @@
 <a href="{{ url_for('home') }}" class="back-link">← Back to Users</a>
 
 <section class="card">
-    <h2>{{ user.name }}'s Favorite Movies</h2>
+    <h2>Movies for {{ user.name }}</h2>
 
     <!-- Add new movie -->
     <form action="{{ url_for('add_movie', user_id=user.id) }}" method="POST" class="add-form">
-        <input type="text" name="title" placeholder="Add movie by title (OMDb)" required>
+        <input type="text" name="title" placeholder="Movie title" required>
+        <input type="number" name="year" placeholder="Year (optional)">
         <button type="submit">Add Movie</button>
     </form>
 
     {% if movies %}
         <ul class="movie-list">
             {% for movie in movies %}
-            <li class="movie-item">
+            <li class="movie-card">
                 {% if movie.poster_url %}
-                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }} poster">
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }} poster" class="movie-poster">
                 {% endif %}
-                <div class="movie-info">
+                <div class="movie-details">
                     <h3>{{ movie.title }} {% if movie.year %}({{ movie.year }}){% endif %}</h3>
                     {% if movie.director %}
                         <p><strong>Director:</strong> {{ movie.director }}</p>
                     {% endif %}
 
-                    <!-- Rating and notes update -->
-                    <form action="{{ url_for('update_movie', user_id=user.id, movie_id=movie.id) }}" method="POST" class="update-form">
-                        <label>
-                            Rating (1–10):
-                            <input type="number" name="rating" min="1" max="10" value="{{ movie.rating or '' }}">
-                        </label>
-                        <label>
-                            Notes:
-                            <input type="text" name="notes" value="{{ movie.notes or '' }}" placeholder="Your notes">
-                        </label>
-                        <button type="submit">Update</button>
+                    <!-- Rating, notes, update -->
+                    <form action="{{ url_for('update_movie', user_id=user.id, movie_id=movie.id) }}" method="POST" class="movie-form">
+
+                        <label class="form-row">Rating ⭐:</label>
+                        <input type="number" name="rating" min="1" max="10" step="0.1" value="{{ movie.rating or '' }}">
+
+                        <div class="form-row">
+                            <label>Notes:</label>
+                            <textarea name="notes" rows="2" placeholder="Write your thoughts here...">{{ movie.notes or '' }}</textarea>
+                        </div>
+
+                        <div class="button-row">
+                            <button type="submit" class="update-btn">Update</button>
+                        </div>
                     </form>
 
-                    <!-- Delete movie -->
-                    <form action="{{ url_for('delete_movie', user_id=user.id, movie_id=movie.id) }}" method="POST" onsubmit="return confirm('Delete this movie?');">
+                    <!-- Separate delete form  -->
+                    <form action="{{ url_for('delete_movie', user_id=user.id, movie_id=movie.id) }}" method="POST" onsubmit="return confirm('Delete this movie?');" class="delete-form">
                         <button type="submit" class="danger">Delete</button>
                     </form>
+
                 </div>
             </li>
             {% endfor %}

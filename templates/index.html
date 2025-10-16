@@ -3,24 +3,25 @@
 
 {% block content %}
 <section class="card">
-    <h2>Registered Users</h2>
+    <h2>Users</h2>
 
     {% if users %}
-        <ul class="user-list">
-            {% for user in users %}
-                <li>
-                    <a href="{{ url_for('user_movies', user_id=user.id) }}">{{ user.name }}</a>
-                </li>
-            {% endfor %}
-        </ul>
+    <div class="user-grid">
+        {% for user in users %}
+        <div class="user-card">
+            <h3>{{ user.name }}</h3>
+            <a href="{{ url_for('user_movies', user_id=user.id) }}" class="view-btn">View Movies</a>
+        </div>
+        {% endfor %}
+    </div>
     {% else %}
         <p>No users yet. Add one below!</p>
     {% endif %}
 </section>
 
 <section class="card">
-    <h2>Add a New User</h2>
-    <form action="{{ url_for('create_user') }}" method="POST">
+    <h2>Add New User</h2>
+    <form action="{{ url_for('create_user') }}" method="POST" class="add-user-form">
         <input type="text" name="name" placeholder="Enter user name" required>
         <button type="submit">Add User</button>
     </form>
