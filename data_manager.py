@@ -23,18 +23,18 @@ class DataManager():
         db.session.commit()
         return new_user
 
-    def get_user(self):
+    def get_users(self):
         """ Gets all users from database."""
         users = User.query.order_by(User.name.asc()).all()
         return users
 
     # --- Movie operations ---
-    def get_movie(self, user_id: int):
+    def get_movies(self, user_id: int):
         """ Gets all movies from a given user id."""
         movies = Movie.query.filter_by(user_id=user_id).order_by(Movie.title.asc()).all()
         return movies
 
-    def add_movies(self, movie: Movie):
+    def add_movie(self, movie: Movie):
         """
         Adds a new movie to the Movie project,
         where the movie has user id assigned.
@@ -53,12 +53,17 @@ class DataManager():
             raise ValueError(f"Movie with ID {movie_id} does not exist.")
 
         # Validate and update
-        if rating is not None:
-            if rating < 1 or rating > 10:
+        if rating not in (None, ""):
+            try:
+                rating_value = float(rating)
+            except ValueError:
+                raise ValueError("Rating must be a number.")
+            if rating_value < 1 or rating_value > 10:
                 raise ValueError("Rating must be between 1 and 10.")
-            movie.rating = rating
+            movie.rating = rating_value
         if notes is not None:
-            movie.notes = notes.strip() if notes.strip() else None
+            notes = notes.strip()
+            movie.notes = notes if notes else None
 
         db.session.commit()
         return movie

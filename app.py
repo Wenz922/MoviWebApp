@@ -21,11 +21,12 @@ data_manager = DataManager() # Create an object of DataManager class
 
 OMDB_API_KEY = os.getenv('API_KEY')
 OMDB_URL = "http://www.omdbapi.com/"
+app.secret_key = os.getenv("SECRET_KEY", "dev-secret")
 
 @app.route('/')
 def home():
     """Home page: show all users and a form to add new users."""
-    users = data_manager.get_user()
+    users = data_manager.get_users()
     return render_template('index.html', users=users)
 
 
@@ -45,7 +46,7 @@ def create_user():
 def user_movies(user_id):
     """Show all favorite movies for a user."""
     user = User.query.get_or_404(user_id)
-    movies = data_manager.get_movie(user_id)
+    movies = data_manager.get_movies(user_id)
     return render_template('movies.html', movies=movies, user=user)
 
 
@@ -65,9 +66,14 @@ def add_movie(user_id):
         return redirect(url_for('user_movies', user_id=user_id))
 
     try:
-        res = requests.get(OMDB_URL, params={"apikey": OMDB_API_KEY, "t": title})
+        year = request.form.get('year', "").strip()
+        params = {"apikey": OMDB_API_KEY, "t": title}
+        if year:
+            params["y"] = year
+
+        res = requests.get(OMDB_URL, params=params)
         data = res.json()
-        if data.get("Response") == "false":
+        if data.get("Response") == "False":
             flash(f"Movie '{title}' not found.")
             return redirect(url_for('user_movies', user_id=user_id))
 
@@ -76,16 +82,16 @@ def add_movie(user_id):
             title=data.get("Title"),
             director=data.get("Director"),
             year=data.get("Year"),
-            rating=int(data.get("imdbRating")) if data.get("imdbRating") != "N/A" else 0,
+            rating=float(data.get("imdbRating")) if data.get("imdbRating") != "N/A" else 0,
             poster_url=(None if data.get("Poster") in (None, "N/A") else data.get("Poster")),
             user_id=user_id
         )
 
-        data_manager.add_movies(movie)
+        data_manager.add_movie(movie)
         flash(f"Movie '{movie.title}' added successfully!")
 
     except Exception as e:
-        flash(f"Error occurred while adding movie '{movie.title}': {e}")
+        flash(f"Error occurred while adding movie: {e}")
 
     return redirect(url_for('user_movies', user_id=user_id))
 
