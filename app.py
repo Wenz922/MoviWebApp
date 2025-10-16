@@ -14,7 +14,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)  # Link the database and the app.
 
-data_manager = DataManager() # Create an object of your DataManager class
+data_manager = DataManager() # Create an object of DataManager class
 
 @app.route('/')
 def home():
