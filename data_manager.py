@@ -1,4 +1,5 @@
 from models import db, User, Movie
+from flask import current_app as app
 
 
 class DataManager():
@@ -21,17 +22,20 @@ class DataManager():
         new_user = User(name=name)
         db.session.add(new_user)
         db.session.commit()
+        app.logger.info("User created: %s", name)
         return new_user
 
     def get_users(self):
         """ Gets all users from database."""
         users = User.query.order_by(User.name.asc()).all()
+        app.logger.info("Fetched %d users.", len(users))
         return users
 
     # --- Movie operations ---
     def get_movies(self, user_id: int):
         """ Gets all movies from a given user id."""
         movies = Movie.query.filter_by(user_id=user_id).order_by(Movie.title.asc()).all()
+        app.logger.info("Fetched %d movies for user_id=%d", len(movies), user_id)
         return movies
 
     def add_movie(self, movie: Movie):
@@ -44,6 +48,7 @@ class DataManager():
 
         db.session.add(movie)
         db.session.commit()
+        app.logger.info("Movie added: '%s' (user_id=%d)", movie.title, movie.user_id)
         return movie
 
     def update_movie(self, movie_id: int, rating: int = None, notes: str = None):
@@ -66,6 +71,7 @@ class DataManager():
             movie.notes = notes if notes else None
 
         db.session.commit()
+        app.logger.info("Movie updated: ID=%d (rating=%s, notes=%s)", movie_id, rating, notes)
         return movie
 
     def delete_movie(self, movie_id: int):
@@ -76,4 +82,5 @@ class DataManager():
 
         db.session.delete(movie)
         db.session.commit()
+        app.logger.info("Movie deleted: '%s' (ID=%d)", movie.title, movie_id)
 
